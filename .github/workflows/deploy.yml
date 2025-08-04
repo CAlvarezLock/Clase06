@@ -1,25 +1,19 @@
 name: Deploy
-on: push
+on:
+  push:
+    branches: [ main ]  # Asegúrate de que se active en la rama correcta.
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        node: [18, 20]
+    runs-on: ubuntu-latest  # Simplifica: no necesitas múltiples OS/Node para un deploy.
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Print variable
-        run: echo "${{ secrets.TOKEN_SECRET }}" 
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 18  # Usa una versión fija (evita matrices innecesarias).
 
       - name: Instalar dependencias
         run: |
@@ -33,39 +27,22 @@ jobs:
         run: npm run build
 
       - name: Upload artifact
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.node == 18 }}
         uses: actions/upload-pages-artifact@v3
         with:
-          path: public
+          path: public  # Asegúrate de que coincida con la carpeta de tu build.
 
-  deploy: 
+  deploy:
     runs-on: ubuntu-latest
-    needs: build 
-
+    needs: build
     permissions:
-      pages: write
+      pages: write  # Permisos necesarios para desplegar.
       id-token: write
 
     environment:
       name: github-pages
-      url: ${{ steps.deployment-pages.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Deploy
-        id: deployment-pages
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
-
-  notify:
-    runs-on: ubuntu-latest
-    needs: deploy
-    if: always()
-
-    steps:
-      - name: notify to slack
-        uses: 8398a7/action-slack@v3
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        with: 
-          status: ${{ job.status }}
-          fields: repo,commit, author,job,took
-
