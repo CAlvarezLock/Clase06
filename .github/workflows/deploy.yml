@@ -29,7 +29,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: public  # Asegúrate de que coincida con la carpeta de tu build.
+          path: root  # Asegúrate de que coincida con la carpeta de tu build.
 
   deploy:
     runs-on: ubuntu-latest
