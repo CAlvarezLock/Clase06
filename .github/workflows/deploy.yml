@@ -14,6 +14,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
+      
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }} # Indica si a cambiado o no
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
 
       - name: Instalar dependencias
         run: npm install
