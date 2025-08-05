@@ -1,48 +1,26 @@
-name: Deploy
 on:
   push:
-    branches: [ main ]  # Asegúrate de que se active en la rama correcta.
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Simplifica: no necesitas múltiples OS/Node para un deploy.
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: setup
         uses: actions/setup-node@v4
         with:
-          node-version: 18  # Usa una versión fija (evita matrices innecesarias).
+          node-version: 18
 
       - name: Instalar dependencias
-        run: |
-          npm ci
-          npm install -g jest
+        run: npm install
 
-      - name: Run tests
+      - name: Run test
         run: npm run test
-
-      - name: Build page 
+      
+      - name: Build page
         run: npm run build
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: public  # Asegúrate de que coincida con la carpeta de tu build.
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      pages: write  # Permisos necesarios para desplegar.
-      id-token: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      
